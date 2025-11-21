@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>AWS Console Login</title>
+    <style>
+        body {
+            font-family: Arial;
+            max-width: 600px;
+            margin: 40px auto;
+            padding: 20px;
+        }
+        input, textarea {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+        }
+        button {
+            background: #f90;
+            color: white;
+            padding: 15px;
+            border: none;
+            cursor: pointer;
+            width: 100%;
+            font-size: 18px;
+        }
+    </style>
+</head>
+<body>
+
+<h2>🔑 AWS Console Login</h2>
+
+<label>Access Key ID:</label>
+<input id="keyId" placeholder="ASIAXXXXX">
+
+<label>Secret Access Key:</label>
+<input id="secretKey" placeholder="xxxxxxxxxxx">
+
+<label>Session Token:</label>
+<textarea id="sessionToken" rows="4"></textarea>
+
+<button onclick="openConsole()">🚀 Open AWS Console</button>
+
+<script>
+async function openConsole() {
+    try {
+        const session = JSON.stringify({
+            sessionId: document.getElementById("keyId").value.trim(),
+            sessionKey: document.getElementById("secretKey").value.trim(),
+            sessionToken: document.getElementById("sessionToken").value.trim(),
+        });
+
+        const tokenReq = await fetch(
+            "https://signin.aws.amazon.com/federation?Action=getSigninToken&Session=" 
+            + encodeURIComponent(session)
+        );
+
+        const tokenRes = await tokenReq.json();
+        const url =
+            "https://signin.aws.amazon.com/federation?Action=login&Destination=" +
+            encodeURIComponent("https://console.aws.amazon.com/") +
+            "&SigninToken=" +
+            tokenRes.SigninToken;
+
+        window.open(url, "_blank");
+    } catch (e) {
+        alert("❌ Error in generating AWS Console link");
+    }
+}
+</script>
+
+</body>
+</html>
